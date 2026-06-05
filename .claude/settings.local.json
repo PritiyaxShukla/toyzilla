@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(node -e \"setTimeout\\(\\(\\)=>{},6000\\)\")",
+      "Bash(curl *)"
+    ]
+  }
+}
