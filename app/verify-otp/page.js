@@ -22,10 +22,9 @@ function VerifyOtpInner() {
     setMessage(null);
 
     const token = code.trim();
-    // Supabase's "Email OTP length" is configurable (6–8 digits); accept any
-    // length in that range and let Supabase do the final validation.
-    if (!/^\d{6,8}$/.test(token)) {
-      setError("Enter the code from your email.");
+    // Supabase "Email OTP length" is set to 6 digits.
+    if (!/^\d{6}$/.test(token)) {
+      setError("Enter the 6-digit code from your email.");
       return;
     }
 
@@ -68,7 +67,7 @@ function VerifyOtpInner() {
         </Link>
         <h1 className="font-display text-2xl font-bold text-ink">Verify your email</h1>
         <p className="text-gray-500 text-sm mt-1">
-          We sent a verification code to{" "}
+          We sent a 6-digit code to{" "}
           <span className="font-medium text-ink">{email || "your email"}</span>
         </p>
       </div>
@@ -83,12 +82,12 @@ function VerifyOtpInner() {
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
-              maxLength={8}
-              placeholder="Enter code"
+              maxLength={6}
+              placeholder="123456"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
               required
-              className="input text-center text-2xl tracking-[0.4em] font-semibold"
+              className="input text-center text-2xl tracking-[0.5em] font-semibold"
             />
           </div>
 
@@ -103,7 +102,7 @@ function VerifyOtpInner() {
 
           <button
             type="submit"
-            disabled={loading || code.length < 6}
+            disabled={loading || code.length !== 6}
             className="btn-primary w-full py-2.5"
           >
             {loading ? "Verifying…" : "Verify & Continue"}
