@@ -41,7 +41,12 @@ module.exports = {
       boxShadow: {
         soft: "0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)",
         card: "0 2px 10px -2px rgba(15,23,42,0.10)",
-        lift: "0 12px 28px -8px rgba(13,148,136,0.25)",
+        lift: "0 18px 40px -16px rgba(13,148,136,0.35)",
+        hero: "0 30px 60px -24px rgba(13,148,136,0.45)",
+      },
+      backgroundImage: {
+        "hero-mesh":
+          "radial-gradient(120% 120% at 0% 0%, #2dd4bf 0%, transparent 55%), radial-gradient(120% 120% at 100% 100%, #0f766e 0%, transparent 50%), linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)",
       },
       keyframes: {
         "fade-up": {
@@ -52,10 +57,15 @@ module.exports = {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.5s ease-out both",
         "fade-in": "fade-in 0.4s ease-out both",
+        float: "float 5s ease-in-out infinite",
       },
     },
   },

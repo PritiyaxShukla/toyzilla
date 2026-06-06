@@ -1,4 +1,10 @@
 import Link from "next/link";
+import {
+  FacebookLogo,
+  InstagramLogo,
+  XLogo,
+  YoutubeLogo,
+} from "@phosphor-icons/react/dist/ssr";
 import NewsletterForm from "./NewsletterForm";
 
 const COLUMNS = [
@@ -35,10 +41,10 @@ const COLUMNS = [
 ];
 
 const SOCIAL = [
-  { label: "Facebook", icon: "📘", href: "https://facebook.com" },
-  { label: "Instagram", icon: "📸", href: "https://instagram.com" },
-  { label: "Twitter", icon: "🐦", href: "https://twitter.com" },
-  { label: "YouTube", icon: "▶️", href: "https://youtube.com" },
+  { label: "Facebook", Icon: FacebookLogo, href: "https://facebook.com" },
+  { label: "Instagram", Icon: InstagramLogo, href: "https://instagram.com" },
+  { label: "Twitter", Icon: XLogo, href: "https://twitter.com" },
+  { label: "YouTube", Icon: YoutubeLogo, href: "https://youtube.com" },
 ];
 
 export default function Footer() {
@@ -73,7 +79,7 @@ export default function Footer() {
             India&apos;s friendliest toy store. Safe, fun and loved by kids
             everywhere.
           </p>
-          <div className="flex gap-3 mt-4 text-xl">
+          <div className="flex gap-2.5 mt-4">
             {SOCIAL.map((s) => (
               <a
                 key={s.label}
@@ -81,9 +87,9 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={s.label}
-                className="cursor-pointer hover:text-white transition"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-brand-500 text-gray-300 hover:text-white flex items-center justify-center transition"
               >
-                {s.icon}
+                <s.Icon size={18} weight="fill" />
               </a>
             ))}
           </div>

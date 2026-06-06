@@ -3,17 +3,24 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Heart, Star, ShoppingCartSimple, Check } from "@phosphor-icons/react";
 import { useStore } from "../providers";
 import { discountFor, mrpFor } from "@/lib/format";
 
 function Stars({ rating }) {
-  const full = Math.floor(rating);
-  const half = rating - full >= 0.5;
   return (
-    <span className="inline-flex items-center gap-0.5 text-accent-500 text-xs">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span key={i}>{i < full ? "★" : i === full && half ? "⯨" : "☆"}</span>
-      ))}
+    <span className="inline-flex items-center gap-0.5 text-accent-500">
+      {Array.from({ length: 5 }).map((_, i) => {
+        const filled = i < Math.round(rating);
+        return (
+          <Star
+            key={i}
+            size={13}
+            weight={filled ? "fill" : "regular"}
+            className={filled ? "text-accent-500" : "text-gray-300"}
+          />
+        );
+      })}
     </span>
   );
 }
@@ -88,9 +95,13 @@ export default function ProductCard({ product }) {
           onClick={handleWish}
           aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={!!wished}
-          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur flex items-center justify-center text-base shadow-soft hover:scale-110 transition"
+          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-soft hover:scale-110 active:scale-95 transition"
         >
-          {wished ? "❤️" : "🤍"}
+          <Heart
+            size={17}
+            weight={wished ? "fill" : "bold"}
+            className={wished ? "text-sale" : "text-gray-400"}
+          />
         </button>
 
         <Link href={`/product/${product.id}`} className="block">
@@ -143,7 +154,7 @@ export default function ProductCard({ product }) {
         <button
           onClick={handleAdd}
           disabled={adding || outOfStock}
-          className={`mt-3 w-full py-2 rounded-lg text-sm font-semibold transition-all disabled:cursor-not-allowed ${
+          className={`mt-3 w-full py-2.5 rounded-lg text-sm font-semibold inline-flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:cursor-not-allowed ${
             outOfStock
               ? "bg-gray-100 text-gray-400"
               : added
@@ -153,15 +164,21 @@ export default function ProductCard({ product }) {
               : "bg-brand-50 text-brand-700 hover:bg-brand-600 hover:text-white"
           }`}
         >
-          {outOfStock
-            ? "Out of Stock"
-            : adding
-            ? "Adding…"
-            : notice
-            ? notice
-            : added
-            ? "✓ Added to Cart"
-            : "Add to Cart"}
+          {outOfStock ? (
+            "Out of Stock"
+          ) : adding ? (
+            "Adding…"
+          ) : notice ? (
+            notice
+          ) : added ? (
+            <>
+              <Check size={16} weight="bold" /> Added to Cart
+            </>
+          ) : (
+            <>
+              <ShoppingCartSimple size={16} weight="bold" /> Add to Cart
+            </>
+          )}
         </button>
       </div>
     </div>

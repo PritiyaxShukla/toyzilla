@@ -3,6 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  MagnifyingGlass,
+  ShoppingCartSimple,
+  Heart,
+  User,
+  Package,
+  Truck,
+  SignOut,
+} from "@phosphor-icons/react";
 import { useStore } from "../providers";
 
 const CATEGORIES = [
@@ -52,8 +61,9 @@ export default function Navbar() {
       {/* Top utility bar */}
       <div className="bg-slatebar text-gray-300 text-xs">
         <div className="container-x flex items-center justify-between h-9">
-          <p className="hidden sm:block">
-            🚚 Free shipping on orders over ₹999 • Same-day dispatch
+          <p className="hidden sm:flex items-center gap-1.5">
+            <Truck size={14} weight="fill" className="text-brand-300" />
+            Free shipping on orders over ₹999 · Same-day dispatch
           </p>
           <div className="flex items-center gap-4">
             <Link href="/track-order" className="hover:text-white">Track Order</Link>
@@ -131,21 +141,25 @@ export default function Navbar() {
                     role="menu"
                     className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-card border border-gray-100 py-1.5 z-40 animate-fade-up"
                   >
-                    <MenuLink href="/orders" onClick={() => setMenuOpen(false)}>📦 My Orders</MenuLink>
+                    <MenuLink href="/orders" onClick={() => setMenuOpen(false)}>
+                      <Package size={17} /> My Orders
+                    </MenuLink>
                     <MenuLink href="/wishlist" onClick={() => setMenuOpen(false)}>
-                      ❤️ Wishlist
+                      <Heart size={17} /> Wishlist
                       {wishlist?.length > 0 && (
                         <span className="ml-auto text-xs text-brand-600">{wishlist.length}</span>
                       )}
                     </MenuLink>
-                    <MenuLink href="/track-order" onClick={() => setMenuOpen(false)}>🚚 Track Order</MenuLink>
+                    <MenuLink href="/track-order" onClick={() => setMenuOpen(false)}>
+                      <Truck size={17} /> Track Order
+                    </MenuLink>
                     <div className="border-t border-gray-100 my-1" />
                     <button
                       role="menuitem"
                       onClick={handleSignOut}
                       className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 flex items-center gap-2"
                     >
-                      🚪 Logout
+                      <SignOut size={17} /> Logout
                     </button>
                   </div>
                 )}
@@ -153,9 +167,9 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-600"
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-600 transition"
               >
-                <span className="text-xl">👤</span>
+                <User size={24} weight="bold" />
                 <div className="leading-tight hidden md:block">
                   <p className="text-[11px] text-gray-400">Account</p>
                   <p className="font-semibold">Login</p>
@@ -170,7 +184,7 @@ export default function Navbar() {
                 aria-label="Wishlist"
                 className="relative text-gray-700 hover:text-brand-600 transition hidden sm:block"
               >
-                <span className="text-2xl">❤️</span>
+                <Heart size={24} weight="bold" />
                 {wishlist?.length > 0 && (
                   <span className="absolute -top-2 -right-2 bg-brand-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
                     {wishlist.length}
@@ -186,7 +200,7 @@ export default function Navbar() {
               className="flex items-center gap-2 text-gray-700 hover:text-brand-600 transition"
             >
               <div className="relative">
-                <span className="text-2xl">🛒</span>
+                <ShoppingCartSimple size={24} weight="bold" />
                 {cartCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-accent-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
                     {cartCount}
@@ -211,8 +225,12 @@ export default function Navbar() {
             placeholder="Search for toys…"
             className="flex-1 border border-gray-200 border-r-0 rounded-l-lg px-4 py-2 text-sm focus:outline-none focus:border-brand-400"
           />
-          <button type="submit" aria-label="Search" className="bg-brand-600 text-white px-4 rounded-r-lg text-sm">
-            🔍
+          <button
+            type="submit"
+            aria-label="Search"
+            className="bg-brand-600 text-white px-4 rounded-r-lg flex items-center justify-center"
+          >
+            <MagnifyingGlass size={18} weight="bold" />
           </button>
         </form>
       </div>

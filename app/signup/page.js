@@ -14,9 +14,21 @@ const STRENGTH = [
   { label: "Strong", color: "bg-emerald-500", text: "text-emerald-600" },
 ];
 
+// Country dial codes offered at signup, with the local number length we expect
+// so we can validate before asking Supabase to send an SMS.
+const DIAL_CODES = [
+  { code: "+91", label: "🇮🇳 +91", len: 10 },
+  { code: "+1", label: "🇺🇸 +1", len: 10 },
+  { code: "+44", label: "🇬🇧 +44", len: 10 },
+  { code: "+61", label: "🇦🇺 +61", len: 9 },
+  { code: "+971", label: "🇦🇪 +971", len: 9 },
+];
+
 export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [dialCode, setDialCode] = useState("+91");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [message, setMessage] = useState(null);
@@ -27,6 +39,12 @@ export default function SignupPage() {
   const strength = useMemo(() => scorePassword(password), [password]);
   const mismatch = confirm.length > 0 && confirm !== password;
   const tooWeak = password.length > 0 && strength < 2;
+
+  const expectedLen =
+    DIAL_CODES.find((d) => d.code === dialCode)?.len ?? 10;
+  const phoneOk = phone.length === expectedLen;
+  // E.164, e.g. +919876543210 — the format Supabase / SMS providers expect.
+  const fullPhone = `${dialCode}${phone}`;
 
   async function handleGoogleLogin() {
     await supabase.auth.signInWithOAuth({
@@ -40,6 +58,10 @@ export default function SignupPage() {
     setError(null);
     setMessage(null);
 
+    if (!phoneOk) {
+      setError(`Enter a valid ${expectedLen}-digit mobile number.`);
+      return;
+    }
     if (password !== confirm) {
       setError("Passwords don't match.");
       return;
@@ -58,10 +80,15 @@ export default function SignupPage() {
     }
 
     setLoading(true);
+    // Stash the phone in user metadata so the handle_new_user trigger writes it
+    // to profiles.phone. It gets verified separately (SMS OTP) on /verify-otp.
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: { phone: fullPhone },
+      },
     });
     setLoading(false);
 
@@ -69,14 +96,11 @@ export default function SignupPage() {
       setError(error.message);
       return;
     }
-    if (data.session) {
-      // Email confirmation is disabled in Supabase — user is signed in now.
-      router.push("/");
-    } else {
-      // Email confirmation required: send the email user to the OTP screen.
-      // (Google sign-up never lands here — OAuth emails are pre-verified.)
-      router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
-    }
+    // Both paths go to /verify-otp: it confirms the email code (when email
+    // confirmation is on) and then forces the mobile-number SMS verification.
+    // (Google sign-up never lands here — OAuth emails are pre-verified.)
+    const q = `email=${encodeURIComponent(email)}&phone=${encodeURIComponent(fullPhone)}`;
+    router.push(`/verify-otp?${q}`);
   }
 
   return (
@@ -120,6 +144,45 @@ export default function SignupPage() {
               required
               className="input"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1.5">
+              Mobile number
+            </label>
+            <div className="flex gap-2">
+              <select
+                value={dialCode}
+                onChange={(e) => setDialCode(e.target.value)}
+                className="input w-28 shrink-0"
+                aria-label="Country code"
+              >
+                {DIAL_CODES.map((d) => (
+                  <option key={d.code} value={d.code}>
+                    {d.label}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel-national"
+                placeholder="9876543210"
+                value={phone}
+                onChange={(e) =>
+                  setPhone(e.target.value.replace(/\D/g, "").slice(0, expectedLen))
+                }
+                required
+                className={`input flex-1 ${
+                  phone.length > 0 && !phoneOk
+                    ? "border-red-300 focus:ring-red-200"
+                    : ""
+                }`}
+              />
+            </div>
+            <p className="text-xs text-gray-400 mt-1">
+              We&apos;ll text a one-time code to verify this number.
+            </p>
           </div>
 
           <div>
@@ -191,7 +254,7 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            disabled={loading || mismatch || tooWeak}
+            disabled={loading || mismatch || tooWeak || !phoneOk}
             className="btn-primary w-full py-2.5"
           >
             {loading ? "Creating…" : "Create Account"}
