@@ -26,6 +26,7 @@ export default function SignupPage() {
 
   const strength = useMemo(() => scorePassword(password), [password]);
   const mismatch = confirm.length > 0 && confirm !== password;
+  const tooWeak = password.length > 0 && strength < 2;
 
   async function handleGoogleLogin() {
     await supabase.auth.signInWithOAuth({
@@ -47,9 +48,21 @@ export default function SignupPage() {
       setError("Password must be at least 6 characters.");
       return;
     }
+    // Enforce password strength: require at least "Fair" (mix of length,
+    // case, digits or symbols) before we let the account be created.
+    if (strength < 2) {
+      setError(
+        "Please choose a stronger password — add length, mixed case, a number or a symbol."
+      );
+      return;
+    }
 
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
     setLoading(false);
 
     if (error) {
@@ -57,9 +70,12 @@ export default function SignupPage() {
       return;
     }
     if (data.session) {
+      // Email confirmation is disabled in Supabase — user is signed in now.
       router.push("/");
     } else {
-      setMessage("Account created! Check your email to confirm, then log in.");
+      // Email confirmation required: send the email user to the OTP screen.
+      // (Google sign-up never lands here — OAuth emails are pre-verified.)
+      router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
     }
   }
 
@@ -143,6 +159,7 @@ export default function SignupPage() {
                 </div>
                 <p className={`text-xs mt-1 ${STRENGTH[strength].text}`}>
                   {STRENGTH[strength].label}
+                  {tooWeak && " — too weak to continue"}
                 </p>
               </div>
             )}
@@ -174,7 +191,7 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            disabled={loading || mismatch}
+            disabled={loading || mismatch || tooWeak}
             className="btn-primary w-full py-2.5"
           >
             {loading ? "Creating…" : "Create Account"}
