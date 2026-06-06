@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request) {
   const { email, items, total, orderId } = await request.json();
 
@@ -52,6 +50,10 @@ export async function POST(request) {
     console.error("[send-order-email] RESEND_API_KEY is not set.");
     return Response.json({ error: "Email not configured" }, { status: 500 });
   }
+
+  // Instantiate lazily (not at module load) so a missing key can never throw
+  // during the build's page-data collection step.
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   // Sender address. Until you verify your own domain in Resend, the shared test
   // sender `onboarding@resend.dev` only delivers to your Resend account email.
