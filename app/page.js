@@ -8,36 +8,34 @@ import {
   Truck,
   ShieldCheck,
   ArrowsClockwise,
-  Lock,
+  CurrencyInr,
   ArrowRight,
+  Lightning,
 } from "@phosphor-icons/react";
 import { supabase } from "@/lib/supabaseClient";
 import ProductCard from "./components/ProductCard";
 
-// Toy-category glyphs stay as emoji on purpose: this is a kids' toy brand and the
-// playful marks are part of its identity. Functional UI chrome uses icons instead.
-const CATEGORY_ICONS = {
-  Wooden: "🪵",
-  "Soft Toys": "🧸",
-  Building: "🧱",
-  Electronic: "🤖",
-  Puzzles: "🧩",
-  "Pretend Play": "🍳",
-  Bath: "🦆",
-  Action: "🦸",
-};
-
+// Trust-first perks tuned for an Indian RC/electronics buyer (see if_im.txt §3):
+// COD and a plain replacement promise lift conversion more than any animation.
 const PERKS = [
-  { Icon: Truck, title: "Free Shipping", desc: "On orders over ₹999" },
-  { Icon: ShieldCheck, title: "Safe & Tested", desc: "Kid-friendly materials" },
-  { Icon: ArrowsClockwise, title: "Easy Returns", desc: "30-day return policy" },
-  { Icon: Lock, title: "Secure Payment", desc: "100% protected checkout" },
+  { Icon: CurrencyInr, title: "Cash on Delivery", desc: "Pay when it arrives" },
+  { Icon: ArrowsClockwise, title: "7-Day Replacement", desc: "Faulty or damaged" },
+  { Icon: ShieldCheck, title: "Genuine Products", desc: "Tested & warranted" },
+  { Icon: Truck, title: "Fast Shipping", desc: "Free over ₹999" },
 ];
 
-// Real hero photography (Unsplash, free license). Verified to return image/jpeg.
-// "Father and son building with colorful blocks" by Vitaly Gariev.
-const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1758687126192-98f54f4b747f?w=1400&q=80&auto=format&fit=crop";
+// Curated RC categories with AI-generated tile art (Runware, SDXL Turbo).
+// These link to product filters — keep the `cat` values in sync with your
+// product categories in Supabase so the filtered grid isn't empty.
+const CATEGORY_TILES = [
+  { name: "RC Cars", cat: "RC Cars", img: "/generated/cat-rc-cars.jpg" },
+  { name: "Drones", cat: "Drones", img: "/generated/cat-drones.jpg" },
+  { name: "RC Planes", cat: "RC Planes", img: "/generated/cat-planes.jpg" },
+  { name: "Helicopters", cat: "Helicopters", img: "/generated/cat-helicopters.jpg" },
+  { name: "RC Animals", cat: "RC Animals", img: "/generated/cat-animals.jpg" },
+  { name: "Boats", cat: "Boats", img: "/generated/cat-boats.jpg" },
+  { name: "Spares & Batteries", cat: "Spares", img: "/generated/cat-spares.jpg" },
+];
 
 function HomeContent() {
   const params = useSearchParams();
@@ -84,11 +82,6 @@ function HomeContent() {
     load();
   }, []);
 
-  const categories = useMemo(
-    () => Array.from(new Set(products.map((p) => p.category).filter(Boolean))),
-    [products]
-  );
-
   const filtered = useMemo(() => {
     return products.filter((p) => {
       const matchCat = !cat || p.category === cat;
@@ -107,33 +100,36 @@ function HomeContent() {
       {/* Hero (hidden while filtering) */}
       {!isFiltering && (
         <section className="grid lg:grid-cols-3 gap-4 mb-6">
-          <div className="reveal lg:col-span-2 relative overflow-hidden rounded-3xl min-h-[300px] sm:min-h-[360px] shadow-hero">
-            {/* Real photography fills the panel; brand scrim keeps copy readable. */}
+          {/* Cinematic main hero — AI photography fills the panel, dark scrim
+              keeps the copy readable (see if_im.txt §5). */}
+          <div className="reveal lg:col-span-2 relative overflow-hidden rounded-3xl min-h-[320px] sm:min-h-[400px] shadow-hero">
             <Image
-              src={HERO_IMAGE}
-              alt="A parent and child building with colorful toy blocks together"
+              src="/generated/hero.jpg"
+              alt="A remote-control rally car drifting through dust at golden hour"
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 66vw"
               className="object-cover object-center"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-800/95 via-brand-700/80 to-brand-600/25" />
+            <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/65 to-transparent" />
 
             <div className="relative z-10 h-full flex flex-col justify-center p-8 sm:p-12 text-white">
               <span className="inline-flex w-fit items-center gap-1.5 bg-accent-400 text-ink text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full mb-4">
+                <Lightning size={14} weight="fill" />
                 New season sale · up to 44% off
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight max-w-xl drop-shadow-sm">
-                Toys that spark
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight max-w-xl drop-shadow-md">
+                Speed, thrills
                 <br />
-                big imaginations
+                remote controlled
               </h1>
-              <p className="mt-4 text-brand-50/90 text-base sm:text-lg max-w-md leading-relaxed">
-                Safe, tested and genuinely loved by kids across India.
+              <p className="mt-4 text-gray-200 text-base sm:text-lg max-w-md leading-relaxed">
+                RC cars, drones, planes and more · tested, genuine and built to
+                take a beating.
               </p>
               <Link
                 href="#products"
-                className="group mt-6 inline-flex w-fit items-center gap-2 bg-white text-brand-700 font-semibold px-6 py-3 rounded-xl shadow-soft hover:bg-brand-50 active:translate-y-px active:scale-[0.98] transition-all"
+                className="group mt-6 inline-flex w-fit items-center gap-2 bg-white text-ink font-semibold px-6 py-3 rounded-xl shadow-soft hover:bg-brand-50 active:translate-y-px active:scale-[0.98] transition-all"
               >
                 Shop Now
                 <ArrowRight
@@ -145,38 +141,31 @@ function HomeContent() {
             </div>
           </div>
 
+          {/* Side promos — AI imagery, real RC framing. */}
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
-            <Link
-              href="/?cat=Building"
-              className="reveal group relative overflow-hidden rounded-3xl bg-accent-100 p-6 flex flex-col justify-center transition-all hover:shadow-card hover:-translate-y-0.5"
-              style={{ "--i": 1 }}
-            >
-              <p className="text-accent-600 font-display font-bold text-lg leading-tight">
-                Building Blocks
-              </p>
-              <p className="text-sm text-accent-600/80 mt-1">From ₹499</p>
-              <span className="absolute -right-2 -bottom-3 text-6xl opacity-90 transition-transform group-hover:scale-110 group-hover:-rotate-6">
-                🧱
-              </span>
-            </Link>
-            <Link
-              href="/?cat=Soft Toys"
-              className="reveal group relative overflow-hidden rounded-3xl bg-brand-100 p-6 flex flex-col justify-center transition-all hover:shadow-card hover:-translate-y-0.5"
-              style={{ "--i": 2 }}
-            >
-              <p className="text-brand-700 font-display font-bold text-lg leading-tight">
-                Soft & Cuddly
-              </p>
-              <p className="text-sm text-brand-700/80 mt-1">Plush from ₹349</p>
-              <span className="absolute -right-2 -bottom-3 text-6xl opacity-90 transition-transform group-hover:scale-110 group-hover:-rotate-6">
-                🧸
-              </span>
-            </Link>
+            <PromoTile
+              href="/?cat=Drones"
+              img="/generated/promo-drone.jpg"
+              alt="A camera drone hovering in a clear sky"
+              kicker="Take off"
+              title="Camera Drones"
+              sub="From ₹1,499"
+              delay={1}
+            />
+            <PromoTile
+              href="/?cat=RC Cars"
+              img="/generated/promo-crawler.jpg"
+              alt="A rugged remote-control rock crawler climbing rocks"
+              kicker="Go anywhere"
+              title="Rock Crawlers"
+              sub="From ₹999"
+              delay={2}
+            />
           </div>
         </section>
       )}
 
-      {/* Perks */}
+      {/* Trust perks */}
       {!isFiltering && (
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
           {PERKS.map((perk, i) => (
@@ -197,25 +186,66 @@ function HomeContent() {
         </section>
       )}
 
-      {/* Shop by category */}
-      {!isFiltering && !loading && categories.length > 0 && (
+      {/* Shop by category — curated, image-led */}
+      {!isFiltering && (
         <section className="mb-10">
           <h2 className="section-title mb-4">Shop by Category</h2>
-          <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
-            {categories.map((c) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {CATEGORY_TILES.map((c, i) => (
               <Link
-                key={c}
-                href={`/?cat=${encodeURIComponent(c)}`}
-                className="group flex flex-col items-center gap-2.5 bg-white rounded-2xl border border-gray-100 hover:border-brand-300 hover:shadow-card hover:-translate-y-0.5 p-4 transition-all"
+                key={c.cat}
+                href={`/?cat=${encodeURIComponent(c.cat)}`}
+                style={{ "--i": i }}
+                className="reveal group relative overflow-hidden rounded-2xl aspect-[4/3] shadow-card transition-all hover:-translate-y-0.5 hover:shadow-lift"
               >
-                <span className="w-14 h-14 rounded-2xl bg-brand-50 group-hover:bg-brand-100 flex items-center justify-center text-2xl transition-all group-hover:scale-105 group-hover:-rotate-6">
-                  {CATEGORY_ICONS[c] || "🎁"}
-                </span>
-                <span className="text-[11px] sm:text-xs text-center text-gray-600 group-hover:text-brand-700 font-medium leading-tight transition-colors">
-                  {c}
-                </span>
+                <Image
+                  src={c.img}
+                  alt={c.name}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-3.5 flex items-center justify-between">
+                  <span className="font-display font-bold text-white text-sm sm:text-base drop-shadow">
+                    {c.name}
+                  </span>
+                  <ArrowRight
+                    size={18}
+                    weight="bold"
+                    className="text-white opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0"
+                  />
+                </div>
               </Link>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* Lifestyle / trust band */}
+      {!isFiltering && (
+        <section className="reveal relative overflow-hidden rounded-3xl min-h-[220px] sm:min-h-[260px] mb-12 shadow-card">
+          <Image
+            src="/generated/lifestyle.jpg"
+            alt="A child happily flying a drone in a sunny park"
+            fill
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/55 to-transparent" />
+          <div className="relative z-10 h-full flex flex-col justify-center p-8 sm:p-12 text-white max-w-xl">
+            <h2 className="font-display text-2xl sm:text-3xl font-bold leading-tight">
+              Built for real play, loved across India
+            </h2>
+            <p className="mt-2 text-gray-200 text-sm sm:text-base">
+              Cash on delivery · 7-day replacement · genuine, safety-tested gear.
+              If it doesn&apos;t work, we make it right.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Badge>COD available</Badge>
+              <Badge>7-day replacement</Badge>
+              <Badge>Secure payment</Badge>
+            </div>
           </div>
         </section>
       )}
@@ -228,11 +258,11 @@ function HomeContent() {
               ? `Results for “${query}”`
               : cat
               ? cat
-              : "Popular Toys"}
+              : "Popular Right Now"}
           </h2>
           {isFiltering && (
             <Link href="/" className="text-sm text-brand-600 font-medium hover:text-brand-700">
-              ← All toys
+              ← All products
             </Link>
           )}
         </div>
@@ -260,7 +290,9 @@ function HomeContent() {
         {!loading && !error && filtered.length === 0 && (
           <div className="bg-white border border-gray-100 rounded-xl p-12 text-center">
             <p className="text-4xl mb-3">🔍</p>
-            <p className="text-gray-500">No toys found. Try a different search or category.</p>
+            <p className="text-gray-500">
+              No products found. Try a different search or category.
+            </p>
           </div>
         )}
 
@@ -273,6 +305,40 @@ function HomeContent() {
         )}
       </section>
     </div>
+  );
+}
+
+function PromoTile({ href, img, alt, kicker, title, sub, delay }) {
+  return (
+    <Link
+      href={href}
+      style={{ "--i": delay }}
+      className="reveal group relative overflow-hidden rounded-3xl min-h-[150px] flex flex-col justify-end p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-lift"
+    >
+      <Image
+        src={img}
+        alt={alt}
+        fill
+        sizes="(max-width: 1024px) 50vw, 33vw"
+        className="object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/30 to-transparent" />
+      <div className="relative z-10 text-white">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-accent-300">
+          {kicker}
+        </p>
+        <p className="font-display font-bold text-lg leading-tight drop-shadow">{title}</p>
+        <p className="text-sm text-gray-200 mt-0.5">{sub}</p>
+      </div>
+    </Link>
+  );
+}
+
+function Badge({ children }) {
+  return (
+    <span className="inline-flex items-center text-xs font-semibold px-3 py-1 rounded-full bg-white/15 text-white backdrop-blur-sm">
+      {children}
+    </span>
   );
 }
 

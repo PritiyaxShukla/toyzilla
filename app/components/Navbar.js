@@ -16,14 +16,13 @@ import { useStore } from "../providers";
 
 const CATEGORIES = [
   "All Toys",
-  "Wooden",
-  "Soft Toys",
-  "Building",
-  "Electronic",
-  "Puzzles",
-  "Pretend Play",
-  "Bath",
-  "Action",
+  "RC Cars",
+  "Drones",
+  "RC Planes",
+  "Helicopters",
+  "RC Animals",
+  "Boats",
+  "Spares",
 ];
 
 export default function Navbar() {
