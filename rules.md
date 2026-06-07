@@ -49,3 +49,26 @@ Notes learned while finding this:
   view.
 - `RUNWARE_API_KEY` lives in `.env.local` only (gitignored). It is **not**
   needed on Vercel for serving — only for re-generating images locally.
+
+## AI 3D generation (Runware)
+
+When generating 3D models from an image with the Runware API:
+
+0. **Default model — ALWAYS use `microsoft:trellis-2@4b` (TRELLIS.2).** This is
+   the mandated image-to-3D model for this project. Do not substitute another
+   model unless explicitly told to.
+   - Model: **TRELLIS.2** · AIR id `microsoft:trellis-2@4b` (Runware, 17 Dec 2025)
+   - Input: **1024x1024** image · Save ~91% · **$0.0256 / model**
+   - Use `taskType: "3dInference"`, output GLB.
+
+1. **Check the price first** (same as image rules) via `includeCost: true`.
+
+2. **Optimize before shipping.** Raw GLB output can be tens of MB — always run
+   it through `gltf-transform` (meshopt + WebP textures @1024) and commit the
+   compressed file to `public/generated/`. Never ship an unoptimized multi-MB
+   model to the browser.
+
+### Previous 3D config (superseded — keep only as fallback)
+
+`tripo:v3.1@0` (Tripo v3.1) image-to-3D, ~$0.5/model. Used before TRELLIS.2
+was mandated.
