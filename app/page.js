@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import {
   Truck,
@@ -11,9 +12,21 @@ import {
   CurrencyInr,
   ArrowRight,
   Lightning,
+  Cube,
+  HandTap,
 } from "@phosphor-icons/react";
 import { supabase } from "@/lib/supabaseClient";
 import ProductCard from "./components/ProductCard";
+
+// three.js is client-only and heavy — load it lazily, never on the server.
+const Showcase3D = dynamic(() => import("./components/Showcase3D"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 flex items-center justify-center text-brand-200 text-sm">
+      Loading 3D…
+    </div>
+  ),
+});
 
 // Trust-first perks tuned for an Indian RC/electronics buyer (see if_im.txt §3):
 // COD and a plain replacement promise lift conversion more than any animation.
@@ -103,6 +116,8 @@ function HomeContent() {
           {/* Cinematic main hero — AI photography fills the panel, dark scrim
               keeps the copy readable (see if_im.txt §5). */}
           <div className="reveal lg:col-span-2 relative overflow-hidden rounded-3xl min-h-[320px] sm:min-h-[400px] shadow-hero">
+            {/* Static image paints instantly (good LCP); the AI video loop
+                layers on top once ready. Hidden for reduced-motion users. */}
             <Image
               src="/generated/hero.jpg"
               alt="A remote-control rally car drifting through dust at golden hour"
@@ -111,6 +126,18 @@ function HomeContent() {
               sizes="(max-width: 1024px) 100vw, 66vw"
               className="object-cover object-center"
             />
+            <video
+              className="hero-video absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="none"
+              poster="/generated/hero.jpg"
+              aria-hidden="true"
+            >
+              <source src="/generated/hero.mp4" type="video/mp4" />
+            </video>
             <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/65 to-transparent" />
 
             <div className="relative z-10 h-full flex flex-col justify-center p-8 sm:p-12 text-white">
@@ -245,6 +272,36 @@ function HomeContent() {
               <Badge>COD available</Badge>
               <Badge>7-day replacement</Badge>
               <Badge>Secure payment</Badge>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Interactive 3D showcase */}
+      {!isFiltering && (
+        <section className="reveal mb-12">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-ink via-slatebar to-brand-900 shadow-hero">
+            <div className="grid lg:grid-cols-2 gap-0 items-center">
+              <div className="p-8 sm:p-12 text-white order-2 lg:order-1">
+                <span className="inline-flex items-center gap-1.5 bg-brand-500/20 text-brand-200 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full mb-4">
+                  <Cube size={14} weight="fill" /> See it in 3D
+                </span>
+                <h2 className="font-display text-2xl sm:text-3xl font-bold leading-tight">
+                  Spin it. Inspect it.
+                  <br />
+                  Then make it yours.
+                </h2>
+                <p className="mt-3 text-gray-300 text-sm sm:text-base max-w-md">
+                  Every angle, in real time · drag to rotate, scroll to zoom.
+                  What you see is what lands at your door.
+                </p>
+                <p className="mt-4 inline-flex items-center gap-1.5 text-xs text-brand-200">
+                  <HandTap size={16} weight="bold" /> Drag to rotate
+                </p>
+              </div>
+              <div className="relative h-[300px] sm:h-[380px] lg:h-[440px] order-1 lg:order-2">
+                <Showcase3D />
+              </div>
             </div>
           </div>
         </section>

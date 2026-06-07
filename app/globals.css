@@ -56,6 +56,10 @@ body {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+  /* Drop the autoplaying hero loop; the static poster image stays. */
+  .hero-video {
+    display: none !important;
+  }
 }
 
 .no-scrollbar::-webkit-scrollbar {
