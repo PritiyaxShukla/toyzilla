@@ -112,10 +112,11 @@ function HomeContent() {
     <div className="container-x py-5 animate-fade-in">
       {/* Hero (hidden while filtering) */}
       {!isFiltering && (
-        <section className="grid lg:grid-cols-3 gap-4 mb-6">
-          {/* Cinematic main hero — AI photography fills the panel, dark scrim
-              keeps the copy readable (see if_im.txt §5). */}
-          <div className="reveal lg:col-span-2 relative overflow-hidden rounded-3xl min-h-[320px] sm:min-h-[400px] shadow-hero">
+        <section className="mb-6">
+          {/* Full-width video banner hero. Poster paints instantly (fast LCP);
+              the faststart MP4 streams on top with preload=auto so there's no
+              lag. Hidden for reduced-motion users — the poster stays. */}
+          <div className="reveal relative overflow-hidden rounded-3xl min-h-[380px] sm:min-h-[460px] lg:min-h-[540px] shadow-hero">
             {/* Static image paints instantly (good LCP); the AI video loop
                 layers on top once ready. Hidden for reduced-motion users. */}
             <Image
@@ -123,7 +124,7 @@ function HomeContent() {
               alt="A remote-control rally car drifting through dust at golden hour"
               fill
               priority
-              sizes="(max-width: 1024px) 100vw, 66vw"
+              sizes="100vw"
               className="object-cover object-center"
             />
             <video
@@ -132,20 +133,20 @@ function HomeContent() {
               muted
               loop
               playsInline
-              preload="none"
+              preload="auto"
               poster="/generated/hero.jpg"
               aria-hidden="true"
             >
               <source src="/generated/hero.mp4" type="video/mp4" />
             </video>
-            <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/65 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/60 to-ink/10" />
 
-            <div className="relative z-10 h-full flex flex-col justify-center p-8 sm:p-12 text-white">
+            <div className="relative z-10 h-full flex flex-col justify-center p-8 sm:p-12 lg:p-16 text-white">
               <span className="inline-flex w-fit items-center gap-1.5 bg-accent-400 text-ink text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full mb-4">
                 <Lightning size={14} weight="fill" />
                 New season sale · up to 44% off
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight max-w-xl drop-shadow-md">
+              <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.02] tracking-tight max-w-2xl drop-shadow-lg">
                 Speed, thrills
                 <br />
                 remote controlled
@@ -168,8 +169,8 @@ function HomeContent() {
             </div>
           </div>
 
-          {/* Side promos — AI imagery, real RC framing. */}
-          <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
+          {/* Quick-link promos under the banner. */}
+          <div className="grid grid-cols-2 gap-4 mt-4">
             <PromoTile
               href="/?cat=Drones"
               img="/generated/promo-drone.jpg"
